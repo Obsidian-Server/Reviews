@@ -1,0 +1,27 @@
+{
+  "name": "obsidian",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mongoSchema.js",
+  "scripts": {
+    "start": "nodemon review-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Obsidian-Server/Obsidian.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Obsidian-Server/Obsidian/issues"
+  },
+  "homepage": "https://github.com/Obsidian-Server/Obsidian#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node": "^16.6.1",
+    "nodemon": "^2.0.12",
+    "pg": "^8.7.1"
+  }
+}

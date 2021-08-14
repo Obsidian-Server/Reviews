@@ -24,6 +24,7 @@ const getReviewMeta = function (data, callback) {
 
 
 const postReview = function (data, callback) {
+  // console.log('report controller')
   db.postReview(data, (error, result) => {
     if (error) {
       console.error('controller post review error', error)
@@ -39,7 +40,7 @@ const putHelpful = function (data, callback) {
     if (error) {
       console.error('controller put helpful error', error)
     } else {
-      //do something. send a 200
+      callback(null, result)
     }
   })
 }
@@ -50,7 +51,7 @@ const putReport = function (data, callback) {
     if (error) {
       console.error('controller put report error', error)
     } else {
-      //do something. send a 200
+      callback(null, result)
     }
   })
 }

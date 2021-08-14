@@ -43,11 +43,9 @@ const getReviewMeta = function (data, callback) {
 
 //post /reviews
 const postReview = function (bodyData, photosData, characteristicsData, callback) {
+  // console.log('report query')
   const values = [];
   const text = '';
-
-  //photos has to be seperate post
-  //characteristics has to be seperate post
 
   //post body data
   client
@@ -73,9 +71,9 @@ const postReview = function (bodyData, photosData, characteristicsData, callback
 
 
 //post /reviews/:review_id/helpful
-const putHelpful = function (data, callback) {
-  const values = [];
-  const text = '';
+const putHelpful = function ({review_id}, callback) {
+  const values = [review_id];
+  const text = 'UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = $1';
 
   client
     .query(text, values)
@@ -86,9 +84,9 @@ const putHelpful = function (data, callback) {
 
 
 //post /reviews/:review_id/report
-const putReport = function (data, callback) {
-  const values = [];
-  const text = '';
+const putReport = function ({review_id}, callback) {
+  const values = [review_id];
+  const text = 'UPDATE reviews SET reported = NOT reported WHERE id = $1';
 
   client
     .query(text, values)

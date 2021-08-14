@@ -57,6 +57,7 @@ app.get('/reviews/meta', (req, res) => {
 
 //post /reviews
 app.post('/reviews', (req, res) => {
+  // console.log('report route')
 
   const reqData = {
     bodyData: {
@@ -87,28 +88,44 @@ app.post('/reviews', (req, res) => {
 
 })
 
-//post /reviews/:review_id/helpful
+//put /reviews/:review_id/helpful
 app.put('/reviews/:review_id/helpful', (req, res) => {
-  //change review id in end point
 
-  controller.putHelpful((err, data) => {
+  reqData = {
+    review_id: req.params.review_id ? req.params.review_id : null
+  }
+
+  if (!reqData.review_id) {
+    res.sendStatus(400)
+  }
+
+  controller.putHelpful(reqData, (err, data) => {
     if (err) {
       console.error('error putting helpful', err)
       res.status(404)
     } else {
-      //something else
+      res.sendStatus(204)
     }
   })
 })
 
-//post /reviews/:review_id/report
+//put /reviews/:review_id/report
 app.put('/reviews/:review_id/report', (req, res) => {
-  controller.putReport((err, data) => {
+
+  reqData = {
+    review_id: req.params.review_id ? req.params.review_id : null
+  }
+
+  if (!reqData.review_id) {
+    res.sendStatus(400)
+  }
+
+  controller.putReport(reqData, (err, data) => {
     if (err) {
       console.error('error putting report', err)
       res.status(404)
     } else {
-      //something else
+      res.sendStatus(204)
     }
   })
 })

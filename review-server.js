@@ -57,35 +57,37 @@ app.get('/reviews/meta', (req, res) => {
 
 //post /reviews
 app.post('/reviews', (req, res) => {
-  // console.log('report route')
 
   const reqData = {
     bodyData: {
-      product_id: req.query.product_id ? req.query.product_id : null,
-      rating: req.query.rating ? req.query.rating : null,
-      summary: req.query.summary ? req.query.summary : null,
-      body: req.query.body ? req.query.body : '',
-      recommend: req.query.recommend ? req.query.recommend : null,
-      name: req.query.name ? req.query.name : null,
-      email: req.query.email ? req.query.email : null,
+      product_id: req.body.product_id ? req.body.product_id : null,
+      rating: req.body.rating ? req.body.rating : null,
+      summary: req.body.summary ? req.body.summary : null,
+      body: req.body.body ? req.body.body : '',
+      recommend: req.body.recommend ? req.body.recommend : null,
+      name: req.body.name ? req.body.name : null,
+      email: req.body.email ? req.body.email : null,
     },
     photosData: {
-      photos: req.query.photos ? req.query.photos : []
+      photos: req.body.photos ? req.body.photos : []
     },
     characteristicsData: {
-      characteristics: req.query.characteristics ? req.query.characteristics : null
+      characteristics: req.body.characteristics ? req.body.characteristics : null
     }
   }
 
-  controller.postReview(reqData, (err, data) => {
-    if (err) {
-      console.error('error posting review body', err)
-      res.status(404)
-    } else {
-      //something else
-    }
-  })
-
+  if (Object.values(reqData.bodyData).includes(null) || Object.values(reqData.photosData).includes(null)) {
+    res.sendStatus(400)
+  } else {
+    controller.postReview(reqData, (err, data) => {
+      if (err) {
+        console.error('error posting review body', err)
+        res.sendStatus(404)
+      } else {
+        res.sendStatus(201)
+      }
+    })
+  }
 })
 
 //put /reviews/:review_id/helpful
@@ -97,16 +99,16 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
 
   if (!reqData.review_id) {
     res.sendStatus(400)
+  } else {
+    controller.putHelpful(reqData, (err, data) => {
+      if (err) {
+        console.error('error putting helpful', err)
+        res.status(404)
+      } else {
+        res.sendStatus(204)
+      }
+    })
   }
-
-  controller.putHelpful(reqData, (err, data) => {
-    if (err) {
-      console.error('error putting helpful', err)
-      res.status(404)
-    } else {
-      res.sendStatus(204)
-    }
-  })
 })
 
 //put /reviews/:review_id/report
@@ -118,14 +120,14 @@ app.put('/reviews/:review_id/report', (req, res) => {
 
   if (!reqData.review_id) {
     res.sendStatus(400)
+  } else {
+    controller.putReport(reqData, (err, data) => {
+      if (err) {
+        console.error('error putting report', err)
+        res.status(404)
+      } else {
+        res.sendStatus(204)
+      }
+    })
   }
-
-  controller.putReport(reqData, (err, data) => {
-    if (err) {
-      console.error('error putting report', err)
-      res.status(404)
-    } else {
-      res.sendStatus(204)
-    }
-  })
 })

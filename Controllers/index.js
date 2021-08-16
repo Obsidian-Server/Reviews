@@ -1,6 +1,5 @@
 const db = require('../Database/database.js')
 
-
 const getReview = function (data, callback) {
   db.getReview(data, (error, result) => {
     if (error) {
@@ -10,7 +9,6 @@ const getReview = function (data, callback) {
     }
   })
 }
-
 
 const getReviewMeta = function (data, callback) {
   db.getReviewMeta(data, (error, result) => {
@@ -22,18 +20,16 @@ const getReviewMeta = function (data, callback) {
   })
 }
 
-
 const postReview = function (data, callback) {
-  // console.log('report controller')
   db.postReview(data, (error, result) => {
     if (error) {
       console.error('controller post review error', error)
     } else {
-      //do something. send a 200
+      console.log('post reviews success - controller')
+      callback(null, result)
     }
   })
 }
-
 
 const putHelpful = function (data, callback) {
   db.putHelpful(data, (error, result) => {
@@ -45,7 +41,6 @@ const putHelpful = function (data, callback) {
   })
 }
 
-
 const putReport = function (data, callback) {
   db.putReport(data, (error, result) => {
     if (error) {
@@ -55,9 +50,6 @@ const putReport = function (data, callback) {
     }
   })
 }
-
-
-
 
 module.exports = {
   getReview: getReview,

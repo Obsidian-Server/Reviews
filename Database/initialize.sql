@@ -12,7 +12,7 @@ CREATE TABLE reviews (
   reported BOOLEAN NOT NULL,
   reviewer_name VARCHAR(100) NOT NULL,
   reviewer_email VARCHAR(100) NOT NULL,
-  response VARCHAR(500) NOT NULL,
+  response VARCHAR(500),
   helpfulness INTEGER NOT NULL
 );
 

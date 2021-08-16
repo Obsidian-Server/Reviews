@@ -1,5 +1,5 @@
-const { Client } = require('pg');
-const client = new Client({
+const { Client, Pool } = require('pg');
+const pool = new Client({
   host: 'localhost',
   database: 'csvtest',
   port: 5432,
@@ -7,7 +7,7 @@ const client = new Client({
   password: 'password'
 });
 
-client
+pool
   .connect()
   .then(() => console.log('database connected'))
   .catch(err => console.error('Error connecting to database', err.stack))
@@ -31,7 +31,15 @@ const getReviewMeta = function (data, callback) {
   const values = [];
   const text = '';
 
-  //characteristics, characteristics_reviews, reviews
+  //product_id -> inputted
+
+  //ratings -> reviews table (count for each number)
+  //recommended -> reviews table (count for true and false)
+  //reported -> reviews table (count for true and false)
+  //helpfulness -> reviews table (total)
+
+  //characteristics -> characterisitcs for the product found in characteristics table
+                    //count && values found in characteristics_reviews table by review_id
 
   client
     .query(text, values)
@@ -42,33 +50,26 @@ const getReviewMeta = function (data, callback) {
 
 
 //post /reviews
-const postReview = function (bodyData, photosData, characteristicsData, callback) {
-  // console.log('report query')
-  const values = [];
-  const text = '';
+const postReview = function ({bodyData, photosData, characteristicsData}, callback) {
 
-  //post body data
-  client
-    .query(text, values)
-    .then(result => callback(null))
-    .catch(err => callback(err, null))
-    .then(() => client.end())
-
-  //post photos data
-  client
-    .query(text, values)
-    .then(result => callback(null))
-    .catch(err => callback(err, null))
-    .then(() => client.end())
-
-  //post characteristics data
-  client
-    .query(text, values)
-    .then(result => callback(null))
-    .catch(err => callback(err, null))
-    .then(() => client.end())
+  pool.query('INSERT INTO reviews (product_id, rating, date, summary, body, recommended, reported, reviewer_name, reviewer_email, response, helpfulness) VALUES ($1, $2, current_timestamp, $3, $4, $5, false, $6, $7, null, 0) RETURNING id',
+    [bodyData.product_id, bodyData.rating, bodyData.summary, bodyData.body, bodyData.recommend, bodyData.name, bodyData.email]
+  )
+  .then(result => {
+    var calls = []
+    photosData.photos.map(photo => {
+      calls.push(pool.query('INSERT INTO reviews_photos (review_id, photos) VALUES ($1, $2)', [result.rows[0].id, photo]))
+    })
+    for (var key in characteristicsData.characteristics) {
+      calls.push(pool.query('INSERT INTO characteristics_reviews (characteristic_id, review_id, value) VALUES ($1, $2, $3)', [key, result.rows[0].id, characteristicsData.characteristics[key]]))
+    }
+    return calls;
+  })
+  .then(calls => Promise.all(calls))
+  .then(result => callback(null, result))
+  .catch(err => callback(err, null))
+  .then(() => pool.end())
 }
-
 
 //post /reviews/:review_id/helpful
 const putHelpful = function ({review_id}, callback) {
@@ -82,7 +83,6 @@ const putHelpful = function ({review_id}, callback) {
     .then(() => client.end())
 }
 
-
 //post /reviews/:review_id/report
 const putReport = function ({review_id}, callback) {
   const values = [review_id];
@@ -94,7 +94,6 @@ const putReport = function ({review_id}, callback) {
     .catch(err => callback(err, null))
     .then(() => client.end())
 }
-
 
 module.exports = {
   getReview: getReview,

@@ -14,17 +14,32 @@ pool
 
 
 const getReview = function ({page, count, sort, product_id}, callback) {
-  const values = [product_id];
-  const text = 'SELECT * FROM reviews INNER JOIN reviews_photos ON reviews_photos.review_id = reviews.id WHERE product_id = $1';
-  // const text = 'SELECT * FROM reviews WHERE product_id = $1'
 
-  // pool
-  //   .query(text, values)
-  //   .then(result => callback(null, result.rows))
-  //   .catch(err => callback(err.stack, null))
-  //   .then(() => client.end())
+  if (sort === 'newest') {
+    sort = 'date';
+  }
+
+  var start = page * 10 - 10;
+
+  var resultData = {
+    product: product_id,
+    page: page,
+    count: count,
+    results: []
+  }
+
+  if (sort === 'relevant') {
+    var queryText = `SELECT reviews.*, ARRAY_AGG(photos) FROM reviews_photos RIGHT JOIN reviews ON reviews.id = reviews_photos.review_id WHERE reviews.product_id = ${product_id} GROUP BY reviews.id ORDER BY helpfulness DESC, date DESC  LIMIT ${count} OFFSET ${start};`
+  } else {
+    queryText = `SELECT reviews.*, ARRAY_AGG(photos) photos FROM reviews_photos RIGHT JOIN reviews ON reviews.id = reviews_photos.review_id WHERE reviews.product_id = ${product_id} GROUP BY reviews.id ORDER BY ${sort} DESC LIMIT ${count} OFFSET ${start};`
+  }
+
+  pool.query(queryText)
+  .then(result => resultData.results = result.rows)
+  .then(() => callback(null, resultData))
+  .catch(err => callback(err.stack, null))
+  .then(() => pool.end())
 }
-
 
 //get reviews/meta
 const getReviewMeta = function ({product_id}, callback) {

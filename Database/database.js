@@ -18,36 +18,50 @@ const getReview = function ({page, count, sort, product_id}, callback) {
   const text = 'SELECT * FROM reviews INNER JOIN reviews_photos ON reviews_photos.review_id = reviews.id WHERE product_id = $1';
   // const text = 'SELECT * FROM reviews WHERE product_id = $1'
 
-  client
-    .query(text, values)
-    .then(result => callback(null, result.rows))
-    .catch(err => callback(err.stack, null))
-    .then(() => client.end())
+  // pool
+  //   .query(text, values)
+  //   .then(result => callback(null, result.rows))
+  //   .catch(err => callback(err.stack, null))
+  //   .then(() => client.end())
 }
 
 
 //get reviews/meta
-const getReviewMeta = function (data, callback) {
-  const values = [];
-  const text = '';
+const getReviewMeta = function ({product_id}, callback) {
 
-  //product_id -> inputted
+  var resultData = {
+    reviews: {},
+    characteristics: {},
+    values: {}
+  }
 
-  //ratings -> reviews table (count for each number)
-  //recommended -> reviews table (count for true and false)
-  //reported -> reviews table (count for true and false)
-  //helpfulness -> reviews table (total)
+  pool.query('SELECT * FROM reviews WHERE product_id = $1', [product_id])
+  .then((result) => resultData.reviews = result.rows)
+  .then(() => {
+    var calls = [pool.query('SELECT * FROM characteristics WHERE product_id = $1', [product_id])]
+    return calls;
+  })
+  .then(calls => {return Promise.all(calls)})
+  .then(result => {
+    resultData.characteristics = result[0].rows;
 
-  //characteristics -> characterisitcs for the product found in characteristics table
-                    //count && values found in characteristics_reviews table by review_id
+    var charIds = [];
+    resultData.characteristics.map(row => {
+      charIds.push(row.id)
+    })
 
-  client
-    .query(text, values)
-    .then(result => callback(null, result.rows))
-    .catch(err => callback(err, null))
-    .then(() => client.end())
+    var idCalls = [];
+    charIds.map(id => {
+      idCalls.push(pool.query('SELECT * FROM characteristics_reviews WHERE characteristic_id = $1', [id]))
+    })
+    return idCalls;
+  })
+  .then((idCalls) => {return Promise.all(idCalls)})
+  .then((result) => resultData.values = result)
+  .then(() => callback(null, resultData))
+  .catch(err => callback(err, null))
+  .then(() => pool.end())
 }
-
 
 //post /reviews
 const postReview = function ({bodyData, photosData, characteristicsData}, callback) {
@@ -76,11 +90,11 @@ const putHelpful = function ({review_id}, callback) {
   const values = [review_id];
   const text = 'UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = $1';
 
-  client
+  pool
     .query(text, values)
     .then(result => callback(null))
     .catch(err => callback(err, null))
-    .then(() => client.end())
+    .then(() => pool.end())
 }
 
 //post /reviews/:review_id/report
@@ -88,11 +102,11 @@ const putReport = function ({review_id}, callback) {
   const values = [review_id];
   const text = 'UPDATE reviews SET reported = NOT reported WHERE id = $1';
 
-  client
+  pool
     .query(text, values)
     .then(result => callback(null))
     .catch(err => callback(err, null))
-    .then(() => client.end())
+    .then(() => pool.end())
 }
 
 module.exports = {

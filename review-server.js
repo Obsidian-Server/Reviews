@@ -92,7 +92,6 @@ app.post('/reviews', (req, res) => {
 
 //put /reviews/:review_id/helpful
 app.put('/reviews/:review_id/helpful', (req, res) => {
-
   reqData = {
     review_id: req.params.review_id ? req.params.review_id : null
   }

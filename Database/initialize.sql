@@ -1,5 +1,5 @@
 --Database and Tables Schema && ETL Process
-CREATE DATABASE reviews_master;
+CREATE DATABASE reviews;
 
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY NOT NULL,
@@ -51,6 +51,6 @@ CREATE TABLE characteristics (
 );
 
 COPY characteristics (id, product_id, name)
-FROM '/Users/sethbaker/Desktop/test-characteristics.csv'
+FROM '/Users/sethbaker/Desktop/characteristics.csv'
 DELIMITER ','
 CSV HEADER;

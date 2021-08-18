@@ -1,7 +1,7 @@
 const { Client, Pool } = require('pg');
 const pool = new Client({
   host: 'localhost',
-  database: 'csvtest',
+  database: 'reviews',
   port: 5432,
   user: 'sethbaker',
   password: 'password'
@@ -11,7 +11,6 @@ pool
   .connect()
   .then(() => console.log('database connected'))
   .catch(err => console.error('Error connecting to database', err.stack))
-
 
 const getReview = function ({page, count, sort, product_id}, callback) {
 
@@ -38,7 +37,7 @@ const getReview = function ({page, count, sort, product_id}, callback) {
   .then(result => resultData.results = result.rows)
   .then(() => callback(null, resultData))
   .catch(err => callback(err.stack, null))
-  .then(() => pool.end())
+  .finally(() => pool.end())
 }
 
 //get reviews/meta
@@ -75,7 +74,7 @@ const getReviewMeta = function ({product_id}, callback) {
   .then((result) => resultData.values = result)
   .then(() => callback(null, resultData))
   .catch(err => callback(err, null))
-  .then(() => pool.end())
+  .finally(() => pool.end())
 }
 
 //post /reviews
@@ -97,7 +96,7 @@ const postReview = function ({bodyData, photosData, characteristicsData}, callba
   .then(calls => Promise.all(calls))
   .then(result => callback(null, result))
   .catch(err => callback(err, null))
-  .then(() => pool.end())
+  .finally(() => pool.end())
 }
 
 //post /reviews/:review_id/helpful
@@ -109,7 +108,7 @@ const putHelpful = function ({review_id}, callback) {
     .query(text, values)
     .then(result => callback(null))
     .catch(err => callback(err, null))
-    .then(() => pool.end())
+    .finally(() => pool.end())
 }
 
 //post /reviews/:review_id/report
@@ -121,7 +120,7 @@ const putReport = function ({review_id}, callback) {
     .query(text, values)
     .then(result => callback(null))
     .catch(err => callback(err, null))
-    .then(() => pool.end())
+    .finally(() => pool.end())
 }
 
 module.exports = {

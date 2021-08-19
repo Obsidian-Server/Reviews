@@ -1,5 +1,5 @@
-const { Client, Pool } = require('pg');
-const pool = new Client({
+const { Pool } = require('pg');
+const pool = new Pool({
   host: 'localhost',
   database: 'reviews',
   port: 5432,
@@ -12,6 +12,7 @@ pool
   .then(() => console.log('database connected'))
   .catch(err => console.error('Error connecting to database', err.stack))
 
+//get /reviews/
 const getReview = function ({page, count, sort, product_id}, callback) {
 
   if (sort === 'newest') {
@@ -37,10 +38,9 @@ const getReview = function ({page, count, sort, product_id}, callback) {
   .then(result => resultData.results = result.rows)
   .then(() => callback(null, resultData))
   .catch(err => callback(err.stack, null))
-  .finally(() => pool.end())
 }
 
-//get reviews/meta
+//get /reviews/meta
 const getReviewMeta = function ({product_id}, callback) {
 
   var resultData = {
@@ -74,7 +74,6 @@ const getReviewMeta = function ({product_id}, callback) {
   .then((result) => resultData.values = result)
   .then(() => callback(null, resultData))
   .catch(err => callback(err, null))
-  .finally(() => pool.end())
 }
 
 //post /reviews
@@ -96,7 +95,6 @@ const postReview = function ({bodyData, photosData, characteristicsData}, callba
   .then(calls => Promise.all(calls))
   .then(result => callback(null, result))
   .catch(err => callback(err, null))
-  .finally(() => pool.end())
 }
 
 //post /reviews/:review_id/helpful
@@ -108,7 +106,6 @@ const putHelpful = function ({review_id}, callback) {
     .query(text, values)
     .then(result => callback(null))
     .catch(err => callback(err, null))
-    .finally(() => pool.end())
 }
 
 //post /reviews/:review_id/report
@@ -120,7 +117,6 @@ const putReport = function ({review_id}, callback) {
     .query(text, values)
     .then(result => callback(null))
     .catch(err => callback(err, null))
-    .finally(() => pool.end())
 }
 
 module.exports = {

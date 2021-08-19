@@ -1,0 +1,24 @@
+{
+  "config": {
+    "target": "http://127.0.0.1:4050",
+    "phases": [
+      {
+        "duration": 10,
+        "arrivalRate": 50
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "flow": [
+        "get": {
+          "url": "/reviews?product_id=81"
+        },
+        "get": {
+          "url": "/reviews/meta?product_id=92"
+        }
+      ]
+    }
+  ]
+}
+
